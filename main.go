@@ -27,6 +27,8 @@ var tasks = allTask{
 	},
 }
 
+// Crud functions starts here
+
 func getTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
@@ -67,6 +69,32 @@ func getById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	taskID, err := strconv.Atoi(vars["id"])
+	var updatedTask task
+
+	if err != nil {
+		fmt.Fprintf(w, "Invalid ID")
+	}
+
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Insert valid data")
+	}
+	json.Unmarshal(reqBody, &updatedTask)
+
+	for i, task := range tasks {
+		if task.Id == taskID {
+			tasks = append(tasks[:i], tasks[i+1:]...)
+			updatedTask.Id = taskID
+			tasks = append(tasks, updatedTask)
+
+			fmt.Fprintf(w, "ID %v has been updated", taskID)
+		}
+	}
+}
+
 func deleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	taskID, err := strconv.Atoi(vars["id"])
@@ -83,6 +111,9 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CRUD functions ends here.
+
+// Config stuff
 func indexRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the party")
 }
